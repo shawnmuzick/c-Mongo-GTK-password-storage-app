@@ -3,15 +3,9 @@
 #include "internal.h"
 #include <string.h>
 
-/*
-    16-6-2020 22:59 - this works as is, go git commit it before making any changes
-*/
-
-
 User *Api_Read_User(){
 
     User *user = malloc(sizeof(User));
-    const unsigned char *str;
 
     cursor = mongoc_collection_find_with_opts(collection, query, NULL, NULL);
 
@@ -31,14 +25,15 @@ User *Api_Read_User(){
             }
         }
     }
-            bson_iter_t child;
-        if(bson_iter_init_find(&iter, document, "data") && BSON_ITER_HOLDS_ARRAY(&iter) && bson_iter_recurse(&iter, &child)){
-            while(bson_iter_next(&child)){
-                printf("found sub-key of data named %s", bson_iter_key(&child));
+    bson_iter_t child;
+    if(bson_iter_init_find(&iter, document, "data") && BSON_ITER_HOLDS_ARRAY(&iter) && bson_iter_recurse(&iter, &child)){
+        while(bson_iter_next(&child)){
+            printf("found sub-key of data named %s", bson_iter_key(&child));
+            if(strcmp(bson_iter_key(&child), "0") == 0){
+                strcpy(user->data[0].passwordValue, bson_iter_utf8(&child, NULL));
             }
         }
-    getchar();
 
-
+    }
     return user;
 }

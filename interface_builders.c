@@ -4,6 +4,8 @@
 #include "internal.h"
 #include <string.h>
 #include <stdbool.h>
+User *user;
+
 User *get_Submission()
 {
     User *submission = malloc(sizeof(User));
@@ -34,7 +36,7 @@ void login_button_clicked(GObject *button, gpointer data)
     Database_Query_Build(submission);
 
     //set up a new user
-    User *user  = Api_Read_User();
+    user  = Api_Read_User();
 
     validated = User_Validate(user, submission);
     char message[20];
@@ -101,8 +103,8 @@ void Interface_Main_Init(int argc, char *argv[]){
 
     g_signal_connect(window, "destroy", G_CALLBACK(closeApp), NULL);
 
-    //GObject *welcome = gtk_builder_get_object(builder, "welcome_label");
-
+    GObject *welcome = gtk_builder_get_object(builder, "welcome_label");
+    gtk_label_set_text(GTK_LABEL(welcome), user->data[0].passwordValue);
     gtk_widget_show_all(GTK_WIDGET(window));
     //render the interface
     gtk_main ();
