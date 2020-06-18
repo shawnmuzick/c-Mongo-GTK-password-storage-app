@@ -4,18 +4,20 @@
 #include <string.h>
 
 User *Api_Read_User(){
-
+    //allocate space for a user struct defined in header
     User *user = malloc(sizeof(User));
-
+    //create a mongo cursor to get data
     cursor = mongoc_collection_find_with_opts(collection, query, NULL, NULL);
-
+    //get data and store it in document
     mongoc_cursor_next(cursor, &document);
 
-    //iterate the keys of the document from what we stored above
+    //iterate the keys of the document
     if (bson_iter_init(&iter, document))
     {
+        //while the document has more keys, step forward
         while (bson_iter_next(&iter))
         {
+            //saves a username and password to the struct
             if(strcmp(bson_iter_key(&iter), "user") == 0){
                 strcpy(user->username, bson_iter_utf8(&iter, NULL));
             }else if(strcmp(bson_iter_key(&iter), "password") == 0){
@@ -25,15 +27,28 @@ User *Api_Read_User(){
             }
         }
     }
+    //initialize child for use with sub array
     bson_iter_t child;
+    //use initialized child to recurse into data array
     if(bson_iter_init_find(&iter, document, "data") && BSON_ITER_HOLDS_ARRAY(&iter) && bson_iter_recurse(&iter, &child)){
+        //while the array has more entries, step forward
         while(bson_iter_next(&child)){
-            printf("found sub-key of data named %s", bson_iter_key(&child));
-            if(strcmp(bson_iter_key(&child), "0") == 0){
-                strcpy(user->data[0].passwordValue, bson_iter_utf8(&child, NULL));
+            //initialize an element
+            bson_iter_t element;
+            //recurse into it
+            bson_iter_recurse(&child, &element);
+            //grab it's values
+            while(bson_iter_next(&element)){
+                strcpy(user->data[0].passwordKey, bson_iter_key(&element));
+                strcpy(user->data[0].passwordValue, bson_iter_utf8(&element, NULL));
             }
         }
 
     }
+    //free allocations
+    bson_destroy(query);
+    mongoc_cursor_destroy(cursor);
+    mongoc_collection_destroy(collection);
+    mongoc_cleanup();
     return user;
 }

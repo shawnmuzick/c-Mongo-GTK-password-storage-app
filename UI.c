@@ -23,7 +23,7 @@ void closeApp(GObject *window, bool validated)
 void closeWindow(GObject *window){
     gtk_window_close(GTK_WINDOW(window));
 }
-
+//login click callback function
 void login_button_clicked(GObject *button, gpointer data)
 {
 
@@ -53,7 +53,7 @@ void login_button_clicked(GObject *button, gpointer data)
     free(user);
 }
 
-
+//initialize a login UI
 void Interface_Login_Init(int argc, char *argv[]){
 
     GTK_error = NULL;
@@ -84,7 +84,7 @@ void Interface_Login_Init(int argc, char *argv[]){
     //render the interface
     gtk_main ();
 }
-
+//initialize the main UI
 void Interface_Main_Init(int argc, char *argv[]){
     GTK_error = NULL;
 
@@ -103,8 +103,15 @@ void Interface_Main_Init(int argc, char *argv[]){
 
     g_signal_connect(window, "destroy", G_CALLBACK(closeApp), NULL);
 
-    GObject *welcome = gtk_builder_get_object(builder, "welcome_label");
-    gtk_label_set_text(GTK_LABEL(welcome), user->data[0].passwordValue);
+    GObject *label_password_key = gtk_builder_get_object(builder, "label_password_key");
+    GObject *label_password_value = gtk_builder_get_object(builder, "label_password_value");
+    GObject *label_welcome = gtk_builder_get_object(builder, "label_welcome");
+
+
+    gtk_label_set_text(GTK_LABEL(label_password_key), user->data[0].passwordKey);
+    gtk_label_set_text(GTK_LABEL(label_password_value), user->data[0].passwordValue);
+   // gtk_label_set_text(GTK_LABEL(label_welcome), user->username);
+
     gtk_widget_show_all(GTK_WIDGET(window));
     //render the interface
     gtk_main ();

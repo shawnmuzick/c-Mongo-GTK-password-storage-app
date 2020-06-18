@@ -3506,7 +3506,7 @@
 	<stdlib.h>
 	"internal.h"
 
-1592417756 source:/home/shawn/Documents/C/GTK/myFirstGtkMongoProject/interface_builders.c
+1592504475 source:/home/shawn/Documents/C/GTK/myFirstGtkMongoProject/interface_builders.c
 	<stdio.h>
 	<stdlib.h>
 	<gtk/gtk.h>
@@ -3535,9 +3535,17 @@
 	<stdlib.h>
 	"internal.h"
 
-1592417488 source:/home/shawn/Documents/C/GTK/myFirstGtkMongoProject/API.c
+1592505376 source:/home/shawn/Documents/C/GTK/myFirstGtkMongoProject/API.c
 	<stdio.h>
 	<stdlib.h>
 	"internal.h"
 	<string.h>
+
+1592505476 source:/home/shawn/Documents/C/GTK/myFirstGtkMongoProject/UI.c
+	<stdio.h>
+	<stdlib.h>
+	<gtk/gtk.h>
+	"internal.h"
+	<string.h>
+	<stdbool.h>
 

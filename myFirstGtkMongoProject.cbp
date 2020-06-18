@@ -48,10 +48,10 @@
 		<Unit filename="Database.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Users.c">
+		<Unit filename="UI.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="interface_builders.c">
+		<Unit filename="Users.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="internal.h" />
