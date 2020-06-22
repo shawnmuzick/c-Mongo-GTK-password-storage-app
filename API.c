@@ -6,6 +6,7 @@
 User *Api_Read_User(){
     //allocate space for a user struct defined in header
     User *user = malloc(sizeof(User));
+    user->data = malloc(sizeof(SavedPassword) * user->dataLength);
     //create a mongo cursor to get data
     cursor = mongoc_collection_find_with_opts(collection, query, NULL, NULL);
     //get data and store it in document
@@ -23,7 +24,7 @@ User *Api_Read_User(){
             }else if(strcmp(bson_iter_key(&iter), "password") == 0){
                 strcpy(user->password, bson_iter_utf8(&iter, NULL));
             }else if(strcmp(bson_iter_key(&iter), "dataLength") == 0){
-                user->dataLength = (uint32_t *)bson_iter_int32(&iter);
+                user->dataLength = bson_iter_int32(&iter);
             }
         }
     }
@@ -45,6 +46,14 @@ User *Api_Read_User(){
         }
 
     }
+    //debug -- check values to make sure they copied correctly to the struct
+    /*
+    printf("%s\n", user->username);
+    printf("%s\n", user->password);
+    printf("datalength %d\n", user->dataLength);
+    printf("data[0]: %s\t%s\n", user->data[0].passwordKey, user->data[0].passwordValue);
+    getchar();*/
+
     //free allocations
     bson_destroy(query);
     mongoc_cursor_destroy(cursor);

@@ -14,8 +14,8 @@ char passwordValue[20];
 typedef struct{
 char username[20];
 char password[20];
-uint32_t *dataLength;
-SavedPassword data[1];
+int dataLength;
+SavedPassword *data;
 }User;
 
 

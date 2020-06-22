@@ -50,7 +50,6 @@ void login_button_clicked(GObject *button, gpointer data)
     }
 
     free(submission);
-    free(user);
 }
 
 //initialize a login UI
