@@ -6,6 +6,13 @@
 #include <stdbool.h>
 User *user;
 
+//GTK-----------------------------------------------------
+GObject *button;
+GObject *username_entry, *password_entry;
+GError *GTK_error;
+GtkBuilder *builder;
+GObject *window;
+
 User *get_Submission()
 {
     User *submission = malloc(sizeof(User));
@@ -74,8 +81,10 @@ void Interface_Login_Init(int argc, char *argv[]){
 
     username_entry = gtk_builder_get_object(builder, "username_input");
     password_entry = gtk_builder_get_object(builder, "password_input");
-    button = gtk_builder_get_object(builder, "submit_btn");
-    gtk_entry_set_visibility(GTK_ENTRY(password_entry), FALSE);
+
+    button = gtk_builder_get_object(builder, "btn_login");
+    GObject *btn_new_user = gtk_builder_get_object(builder, "btn_new_user");
+
 
     g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(login_button_clicked), password_entry);
 
@@ -102,14 +111,27 @@ void Interface_Main_Init(int argc, char *argv[]){
 
     g_signal_connect(window, "destroy", G_CALLBACK(closeApp), NULL);
 
-    GObject *label_password_key = gtk_builder_get_object(builder, "label_password_key");
-    GObject *label_password_value = gtk_builder_get_object(builder, "label_password_value");
     GObject *label_welcome = gtk_builder_get_object(builder, "label_welcome");
+    char string[20] = "hello ";
+    strcat(string, user->username);
+    gtk_label_set_text(GTK_LABEL(label_welcome), string);
 
+    GtkGrid *grid_main = (GtkGrid *)gtk_builder_get_object(builder, "grid_main");
 
-    gtk_label_set_text(GTK_LABEL(label_password_key), user->data[0].passwordKey);
-    gtk_label_set_text(GTK_LABEL(label_password_value), user->data[0].passwordValue);
-   // gtk_label_set_text(GTK_LABEL(label_welcome), user->username);
+    //create additional fields for additional entries, subtracting the one used above
+    for(int i = 0; i < user->dataLength; i++){
+        gtk_grid_insert_row(grid_main, i);
+        GtkWidget *key = gtk_label_new(user->data[i].passwordKey);
+        GtkWidget *value = gtk_label_new(user->data[i].passwordValue);
+        gtk_widget_set_hexpand(key, TRUE);
+        gtk_widget_set_vexpand(key, TRUE);
+
+        gtk_widget_set_hexpand(value, TRUE);
+        gtk_widget_set_vexpand(value, TRUE);
+
+        gtk_grid_attach(grid_main,key, 0,i,1,1);
+        gtk_grid_attach(grid_main,value, 1,i,1,1);
+    }
 
     gtk_widget_show_all(GTK_WIDGET(window));
     //render the interface

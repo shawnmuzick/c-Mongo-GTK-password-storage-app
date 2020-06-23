@@ -22,15 +22,6 @@ SavedPassword *data;
 //-------------------
 bool validated;
 
-//GTK-----------------------------------------------------
-
-GtkBuilder *builder;
-GObject *window;
-GObject *button;
-GObject *username_entry, *password_entry;
-GObject *username_label, *password_label;
-GError *GTK_error;
-
 //Mongo----------------------------------------------------
 mongoc_database_t *database;
 mongoc_client_t *client;
