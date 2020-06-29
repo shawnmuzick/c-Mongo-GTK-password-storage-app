@@ -5,18 +5,18 @@
 #define INTERNAL_H_INCLUDED
 //Structs--------------------------------------------------
 
-typedef struct{
-char passwordKey[10];
-char passwordValue[20];
-}SavedPassword;
+typedef struct {
+        char passwordKey[10];
+        char passwordValue[20];
+} SavedPassword;
 
 
-typedef struct{
-char username[20];
-char password[20];
-int dataLength;
-SavedPassword *data;
-}User;
+typedef struct {
+        char username[20];
+        char password[20];
+        int dataLength;
+        SavedPassword *data;
+} User;
 
 
 //-------------------
@@ -36,20 +36,20 @@ const bson_t *document;
 bson_error_t error;
 
 //API-------------------------------------------------------
-    //CRUD
-User *Api_Create_User(User *a);
+//CRUD
+bool Api_Create_User(User *a);
 User *Api_Read_User();
 User *Api_Update_User();
 User *Api_Delete_User(User *a);
 
-    //Database
+//Database
 void Database_Init();
 void Database_Query_Build(User *s);
 
-    //User
+//User
 bool User_Validate(User *a, User *b);
 
-    //Interface
+//Interface
 void Interface_Login_Init(int argc, char *argv[]);
 void Interface_Main_Init(int argc, char *argv[]);
 
