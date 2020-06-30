@@ -8,20 +8,20 @@ User *Api_Read_User()
 {
 
         User *user = malloc(sizeof(User));
-
         cursor = mongoc_collection_find_with_opts(collection, query, NULL, NULL);
         mongoc_cursor_next(cursor, &document);
-
         //iterate the keys of the document
         if (bson_iter_init(&iter, document)) {
                 //while the document has more keys, step forward
                 while (bson_iter_next(&iter)) {
                         //saves a username and password to the struct
                         if(strcmp(bson_iter_key(&iter), "user") == 0) {
+                        //printf("found user!\n");
                                 strcpy(user->username, bson_iter_utf8(&iter, NULL));
                         } else if(strcmp(bson_iter_key(&iter), "password") == 0) {
                                 strcpy(user->password, bson_iter_utf8(&iter, NULL));
                         } else if(strcmp(bson_iter_key(&iter), "dataLength") == 0) {
+                                printf("extracted data length %d\n", bson_iter_int32(&iter));
                                 user->dataLength = bson_iter_int32(&iter);
                         }
                 }
@@ -51,11 +51,19 @@ User *Api_Read_User()
 
         }
 
+        //debug
+        //printf("username: %s\n", user->username);
+        //printf("password: %s\n", user->password);
+        //printf("datalength: %d\n", user->dataLength);
+
         //free allocations
+        /*
         bson_destroy(query);
         mongoc_cursor_destroy(cursor);
         mongoc_collection_destroy(collection);
         mongoc_cleanup();
+
+        */
         return user;
 }
 
@@ -76,7 +84,7 @@ bool Api_Create_User(User *submission)
         BSON_APPEND_UTF8(doc, "user", submission->username);
         BSON_APPEND_UTF8(doc, "password", submission->password);
         //initially set this to 1
-        BSON_APPEND_INT32(doc, "datalength", 1);
+        BSON_APPEND_INT32(doc, "dataLength", 1);
 
         //add initial data to child
         BSON_APPEND_UTF8(child, "Begin", "Here");
@@ -91,10 +99,12 @@ bool Api_Create_User(User *submission)
                 return false;
         }
 
+        //freeing these creates a bug, investigate more later
+        /*
         bson_destroy (doc);
         mongoc_collection_destroy (collection);
         mongoc_client_destroy (client);
         mongoc_cleanup ();
-
+*/
         return true;
 }

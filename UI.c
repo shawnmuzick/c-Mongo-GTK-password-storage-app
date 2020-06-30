@@ -18,16 +18,6 @@ void closeWindow(GObject *window);
 void Interface_Register_Init();
 User *get_Submission();
 
-bool register_password_match()
-{
-
-        if(strcmp(gtk_entry_get_text(GTK_ENTRY((GtkWidget *)password_entry)), gtk_entry_get_text(GTK_ENTRY((GtkWidget *)password_retype))) == 0) {
-                printf("password match check passed\n");
-                return true;
-        } else return false;
-
-}
-
 User *get_Submission()
 {
         User *submission = malloc(sizeof(User));
@@ -38,7 +28,7 @@ User *get_Submission()
 
 void register_new_user_button_clicked()
 {
-        bool password_match = register_password_match();
+        bool password_match = user_register_password_match(password_entry, password_retype);
 
         while(!password_match) {
                 printf("passwords do not match, try again");
@@ -49,7 +39,10 @@ void register_new_user_button_clicked()
         bool created = Api_Create_User(submission);
         if(created) {
                 closeWindow(window);
-                Interface_Main_Init(0, NULL);
+                Interface_Login_Init(0, NULL);
+        }else{
+                printf("%d", created);
+                Interface_Login_Init(0, NULL);
         }
 }
 
@@ -65,7 +58,6 @@ void closeWindow(GObject *window)
 //login click callback function
 void login_button_clicked(GObject *button, gpointer data)
 {
-
         GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
         //build a user model from the input fields

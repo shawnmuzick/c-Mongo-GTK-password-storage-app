@@ -12,4 +12,6 @@ void Database_Init(){
 void Database_Query_Build(User *s){
    query = bson_new();
     BSON_APPEND_UTF8(query, "user", s->username);
+    //printf("querying username: %s\n", s->username);
+    //getchar();
 }

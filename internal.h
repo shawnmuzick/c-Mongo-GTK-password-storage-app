@@ -48,6 +48,7 @@ void Database_Query_Build(User *s);
 
 //User
 bool User_Validate(User *a, User *b);
+bool user_register_password_match(GObject *password_entry, GObject *password_retype);
 
 //Interface
 void Interface_Login_Init(int argc, char *argv[]);
