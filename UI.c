@@ -7,9 +7,7 @@
 User *user;
 
 //GTK-----------------------------------------------------
-GObject *button;
-GObject *username_entry, *password_entry;
-GObject *password_retype;
+//GObject *button;
 GError *GTK_error;
 GtkBuilder *builder;
 GObject *window;
@@ -18,32 +16,32 @@ void closeWindow(GObject *window);
 void Interface_Register_Init();
 User *get_Submission();
 
-User *get_Submission()
+User *get_Submission(Credential *c)
 {
         User *submission = malloc(sizeof(User));
-        strcpy(submission->username, gtk_entry_get_text(GTK_ENTRY((GtkWidget *)username_entry)));
-        strcpy(submission->password, gtk_entry_get_text(GTK_ENTRY((GtkWidget *)password_entry)));
+        strcpy(submission->username, gtk_entry_get_text(GTK_ENTRY(c->username_entry)));
+        strcpy(submission->password, gtk_entry_get_text(GTK_ENTRY(c->password_entry)));
         return submission;
 }
 
-void register_new_user_button_clicked()
+void register_new_user_button_clicked(GObject *button, Credential *c)
 {
-        bool password_match = user_register_password_match(password_entry, password_retype);
-
-        while(!password_match) {
-                printf("passwords do not match, try again");
+        bool password_match = user_register_password_match(c);
+        if(password_match) {
+                User *submission = get_Submission(c);
+                submission->dataLength = 1;
+                bool created = Api_Create_User(submission);
+                if(created) {
+                        closeWindow(window);
+                        Interface_Login_Init(0, NULL);
+                } else {
+                        printf("%d", created);
+                        Interface_Login_Init(0, NULL);
+                }
+        } else {
+                printf("passwords do not match!\n");
         }
 
-        User *submission = get_Submission();
-        submission->dataLength = 1;
-        bool created = Api_Create_User(submission);
-        if(created) {
-                closeWindow(window);
-                Interface_Login_Init(0, NULL);
-        }else{
-                printf("%d", created);
-                Interface_Login_Init(0, NULL);
-        }
 }
 
 void closeApp(GObject *window, bool validated)
@@ -56,12 +54,12 @@ void closeWindow(GObject *window)
         gtk_window_close(GTK_WINDOW(window));
 }
 //login click callback function
-void login_button_clicked(GObject *button, gpointer data)
+void login_button_clicked(GObject *button, Credential *c)
 {
         GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
         //build a user model from the input fields
-        User *submission = get_Submission();
+        User *submission = get_Submission(c);
 
         //build database query from the submission
         Database_Query_Build(submission);
@@ -92,9 +90,7 @@ void new_user_btn_clicked(GObject *btn)
 //initialize a login UI
 void Interface_Login_Init(int argc, char *argv[])
 {
-
         GTK_error = NULL;
-
         gtk_init(&argc, &argv);
 
         /* Construct a GtkBuilder instance and load our UI description */
@@ -109,14 +105,17 @@ void Interface_Login_Init(int argc, char *argv[])
 
         g_signal_connect(window, "destroy", G_CALLBACK(closeApp), NULL);
 
-        username_entry = gtk_builder_get_object(builder, "username_input");
-        password_entry = gtk_builder_get_object(builder, "password_input");
+        GObject *username_entry = gtk_builder_get_object(builder, "username_input");
+        GObject *password_entry = gtk_builder_get_object(builder, "password_input");
 
-        button = gtk_builder_get_object(builder, "btn_login");
+        GObject *button = gtk_builder_get_object(builder, "btn_login");
         GObject *btn_new_user = gtk_builder_get_object(builder, "btn_new_user");
 
+        Credential *credential = malloc(sizeof(Credential));
+        credential->password_entry = password_entry;
+        credential->username_entry = username_entry;
 
-        g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(login_button_clicked), password_entry);
+        g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(login_button_clicked), credential);
         g_signal_connect(G_OBJECT(btn_new_user), "clicked", G_CALLBACK(new_user_btn_clicked), NULL);
 
         gtk_widget_show_all(GTK_WIDGET(window));
@@ -176,7 +175,7 @@ void Interface_Register_Init()
 
         gtk_init(0, NULL);
 
-        /* Construct a GtkBuilder instance and load our UI description */
+        // Construct a GtkBuilder instance and load our UI description
         builder = gtk_builder_new ();
         if (gtk_builder_add_from_file (builder, "window_register.glade", &GTK_error) == 0) {
                 g_printerr ("Error loading file: %s\n", GTK_error->message);
@@ -187,11 +186,17 @@ void Interface_Register_Init()
         window = gtk_builder_get_object (builder, "window_register");
 
         g_signal_connect(window, "destroy", G_CALLBACK(closeApp), NULL);
-        username_entry = gtk_builder_get_object(builder, "username_input");
-        password_entry = gtk_builder_get_object(builder, "password_input");
-        password_retype = gtk_builder_get_object(builder, "password_check_input");
-        button = gtk_builder_get_object(builder, "btn_register");
-        g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(register_new_user_button_clicked), NULL);
+        GObject *username_entry = gtk_builder_get_object(builder, "username_input");
+        GObject *password_entry = gtk_builder_get_object(builder, "password_input");
+        GObject *password_retype = gtk_builder_get_object(builder, "password_check_input");
+        GObject *button = gtk_builder_get_object(builder, "btn_register");
+
+        Credential *credential = malloc(sizeof(Credential));
+        credential->password_entry = password_entry;
+        credential->username_entry = username_entry;
+        credential->password_retype = password_retype;
+
+        g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(register_new_user_button_clicked), credential);
 
         gtk_widget_show_all(GTK_WIDGET(window));
         //render the interface

@@ -18,6 +18,11 @@ typedef struct {
         SavedPassword *data;
 } User;
 
+typedef struct{
+        GObject *username_entry;
+        GObject *password_entry;
+        GObject *password_retype;
+}Credential;
 
 //-------------------
 bool validated;
@@ -48,7 +53,7 @@ void Database_Query_Build(User *s);
 
 //User
 bool User_Validate(User *a, User *b);
-bool user_register_password_match(GObject *password_entry, GObject *password_retype);
+bool user_register_password_match(Credential *c);
 
 //Interface
 void Interface_Login_Init(int argc, char *argv[]);
