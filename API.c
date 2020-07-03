@@ -4,19 +4,19 @@
 #include <string.h>
 #include <stdbool.h>
 
-User *Api_Read_User()
+User *Api_Read_User(bson_t *query, Database *d)
 {
 
         User *user = malloc(sizeof(User));
-        cursor = mongoc_collection_find_with_opts(collection, query, NULL, NULL);
-        mongoc_cursor_next(cursor, &document);
+        d->cursor = mongoc_collection_find_with_opts(d->collection, query, NULL, NULL);
+        mongoc_cursor_next(d->cursor, &d->document);
         //iterate the keys of the document
-        if (bson_iter_init(&iter, document)) {
+        if (bson_iter_init(&iter, d->document)) {
                 //while the document has more keys, step forward
                 while (bson_iter_next(&iter)) {
                         //saves a username and password to the struct
                         if(strcmp(bson_iter_key(&iter), "user") == 0) {
-                        //printf("found user!\n");
+                                //printf("found user!\n");
                                 strcpy(user->username, bson_iter_utf8(&iter, NULL));
                         } else if(strcmp(bson_iter_key(&iter), "password") == 0) {
                                 strcpy(user->password, bson_iter_utf8(&iter, NULL));
@@ -33,7 +33,7 @@ User *Api_Read_User()
         //initialize child for use with sub array
         bson_iter_t child;
         //use initialized child to recurse into data array
-        if(bson_iter_init_find(&iter, document, "data") && BSON_ITER_HOLDS_ARRAY(&iter) && bson_iter_recurse(&iter, &child)) {
+        if(bson_iter_init_find(&iter, d->document, "data") && BSON_ITER_HOLDS_ARRAY(&iter) && bson_iter_recurse(&iter, &child)) {
                 int i = 0;
                 while(bson_iter_next(&child)) {
 
@@ -51,23 +51,10 @@ User *Api_Read_User()
 
         }
 
-        //debug
-        //printf("username: %s\n", user->username);
-        //printf("password: %s\n", user->password);
-        //printf("datalength: %d\n", user->dataLength);
-
-        //free allocations
-        /*
-        bson_destroy(query);
-        mongoc_cursor_destroy(cursor);
-        mongoc_collection_destroy(collection);
-        mongoc_cleanup();
-
-        */
         return user;
 }
 
-bool Api_Create_User(User *submission)
+bool Api_Create_User(User *submission, Database *d)
 {
 
         bson_t *arr;
@@ -94,17 +81,10 @@ bool Api_Create_User(User *submission)
         bson_append_array(doc, "data", -1,arr);
 
         if (!mongoc_collection_insert_one (
-                                collection, doc, NULL, NULL, &error)) {
+                                d->collection, doc, NULL, NULL, &error)) {
                 fprintf (stderr, "%s\n", error.message);
                 return false;
         }
 
-        //freeing these creates a bug, investigate more later
-        /*
-        bson_destroy (doc);
-        mongoc_collection_destroy (collection);
-        mongoc_client_destroy (client);
-        mongoc_cleanup ();
-*/
         return true;
 }
